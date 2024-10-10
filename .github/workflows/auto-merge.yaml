@@ -1,0 +1,19 @@
+name: Auto merge
+on: pull_request
+jobs:
+  merge:
+    # dependabot[bot] はワークフロー実行時に使われる Dependabot のアカウント名
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    permissions: # マージに必要なパーミッション
+      contents: write
+      pull-requests: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+        #         マージ前に承認を行う（コードレビューのスキップ）
+               gh pr review "${GITHUB_HEAD_REF}" --approve
+        #         --auto はステータスチェックがすべて成功状態に変わったタイミングで自動的にマージする
+               gh pr merge "${GITHUB_HEAD_REF}" --merge --auto
